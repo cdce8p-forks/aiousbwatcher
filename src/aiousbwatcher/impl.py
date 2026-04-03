@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from collections.abc import Coroutine
 from functools import partial
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable
 
 _INOTIFY_EXCEPTION: Exception | None = None
 try:
@@ -42,7 +43,7 @@ class AIOUSBWatcher:
         self._task: asyncio.Task[None] | None = None
         self._callbacks: set[Callable[[], None]] = set()
 
-    def async_start(self) -> Callable[[], None]:
+    def async_start(self) -> Callable[[], Coroutine[Any, Any, None]]:
         """Start the watcher."""
         if self._task is not None:
             raise RuntimeError("Watcher already started")
@@ -60,10 +61,14 @@ class AIOUSBWatcher:
         self._callbacks.add(callback)
         return partial(self._async_unregister_callback, callback)
 
-    def _async_stop(self) -> None:
+    async def _async_stop(self) -> None:
         """Stop the watcher."""
         assert self._task is not None  # noqa
         self._task.cancel()
+        try:
+            await self._task
+        except asyncio.CancelledError:
+            pass
         self._task = None
 
     async def _watcher(self) -> None:

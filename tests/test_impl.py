@@ -75,7 +75,7 @@ async def test_aiousbwatcher_broken_callbacks(
         assert "Broken" in caplog.text
         unregister()
         unregister2()
-        stop()
+        await stop()
         await asyncio.sleep(_INOTIFY_WAIT_TIME)
         assert not called
 
@@ -90,7 +90,7 @@ async def test_aiousbwatcher_attempt_to_start_twice(tmp_path: Path) -> None:
         stop = watcher.async_start()
         with pytest.raises(RuntimeError):
             watcher.async_start()
-        stop()
+        await stop()
 
 
 @pytest.mark.asyncio
@@ -135,6 +135,6 @@ async def test_aiousbwatcher_subdirs_added(tmp_path: Path) -> None:
         assert called
         called = False
         unregister()
-        stop()
+        await stop()
         await asyncio.sleep(_INOTIFY_WAIT_TIME)
         assert not called

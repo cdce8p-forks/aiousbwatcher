@@ -17,7 +17,7 @@ async def main() -> None:
     try:
         await event.wait()
     finally:
-        cancel()
+        await cancel()
 
 
 if __name__ == "__main__":
