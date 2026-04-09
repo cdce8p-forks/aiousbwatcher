@@ -54,7 +54,7 @@ class AIOUSBWatcher:
             raise InotifyNotAvailableError(
                 "Inotify not available on this platform"
             ) from _INOTIFY_EXCEPTION
-        self._task = self._loop.create_task(self._watcher())
+        self._task = asyncio.create_task(self._watcher(), eager_start=True)
         return self._async_stop
 
     def async_register_callback(
