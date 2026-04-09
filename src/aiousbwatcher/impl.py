@@ -5,11 +5,15 @@ import logging
 from functools import partial
 from pathlib import Path
 from typing import Callable
+import warnings
 
 _INOTIFY_EXCEPTION: Exception | None = None
+
 try:
+    with warnings.catch_warnings(action="ignore", category=UserWarning):
+        from asyncinotify._ffi import libc
     from asyncinotify import Inotify, Mask
-except Exception as ex:
+except ImportError as ex:
     _INOTIFY_EXCEPTION = ex
     Mask = Inotify = None
 
